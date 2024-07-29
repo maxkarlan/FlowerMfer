@@ -34,16 +34,38 @@ let totalStreamsToGenerate = 0;
 const REF_AREA = 1920 * 1080;  // Assuming 1920x1080 as the reference resolution where numOfStreams was 900.
 const BASE_SPEED = .01;  // the basic speed when there's just one stream
 const LOG_SCALE_FACTOR = .95;  // scaling factor for logarithmic relationship
+let selectedColorSet;
 //const SPEED_INCREMENT = 0.01;  // the amount of speed to be added for each additional stream
+
+const colorSets = [
+    [
+        [238, 96, 85],
+        [170, 246, 131],
+        [96, 211, 197],
+        [0, 0, 0],
+        [255, 217, 125]
+    ],
+    [
+        [250, 195, 53],
+        // [117, 13, 55],
+        [169, 98, 135],
+        // [179, 222, 193],
+        [96, 176, 129],
+        // [96, 176, 218],
+        [0, 0, 0],
+        [117, 13, 55]
+        // [220, 85, 113]
+    ]
+];
 
 
 function preload() {
     circleDiameter = Math.min(windowWidth, windowHeight);
     let desiredImageHeight = circleDiameter * 1.6;
 
-    images = ["flower.png", "headOutline.png", "headNaked.png", "eyes.png"]
+    let imageNames = ["flower.png", "headOutline.png", "headNaked.png", "eyes.png"];
     for (let i = 0; i < 4; i++) {
-        loadImage(images[i], img => {
+        loadImage(imageNames[i], img => {
             let scaleFactor = desiredImageHeight / img.height;
             img.resize(img.width * scaleFactor, img.height * scaleFactor);
             images[i] = img;
@@ -79,16 +101,16 @@ function generateStreams() {
 
 
 function setup() {
-
+    createCanvas(windowWidth, windowHeight);
+    imgCenter = createVector(width / 2, height / 2);
+    background(0, 0, 0);
+    
     for (let i = 0; i < 4; i++) {
         streamGroups.push([]);
     }
 
-    createCanvas(windowWidth, windowHeight);
-    imgCenter = createVector(width / 2, height / 2);
-    background(255, 217, 125);
-
-    generateStreams();  // Generate streams based on window size
+    generateStreams();
+    selectedColorSet = random(colorSets);
 }
 
 function windowResized() {
@@ -129,11 +151,13 @@ return result;
 }
 
 function draw() {
-    background(255, 217, 125);
-    pointImageOverlapCache = {};  // Clear the cache for each frame
+    if (!selectedColorSet) return;  // Exit if color set is not selected yet
+    
+    background(selectedColorSet[4] || [0, 0, 0]);  // Use black as fallback
+    pointImageOverlapCache = {};
     drawTransparentCircle();
 
-    adjustStreams();  // Adjust the number of streams
+    adjustStreams();
 
     for (let streams of streamGroups) {
         for (let s of streams) {
@@ -143,36 +167,28 @@ function draw() {
     }
 }
 
-// New function to adjust the number of streams
 function adjustStreams() {
-    const colors = [
-        [238, 96, 85],
-        [170, 246, 131],
-        [96, 211, 197],
-        [0, 0, 0]
-    ];
+    if (!selectedColorSet) return;  // Exit if color set is not selected yet
 
     for (let j = 0; j < 4; j++) {
         while (streamGroups[j].length < desiredStreamCounts[j]) {
-            // Sample a point from an existing stream if available
             let samplePoint = streamGroups[j].length > 0 ? random(random(streamGroups[j]).points) : null;
-
-            // Add a stream with the sampled point
-            streamGroups[j].push(new Stream(colors[j], j, samplePoint));
+            streamGroups[j].push(new Stream(selectedColorSet[j] || [0, 0, 0], j, samplePoint));
         }
 
         while (streamGroups[j].length > desiredStreamCounts[j]) {
-            // Start fading the last stream
-            streamGroups[j][streamGroups[j].length - 1].fade();
-            
-            // Remove the stream if it's fully faded
-            if(streamGroups[j][streamGroups[j].length - 1].alpha <= 0) {
-                streamGroups[j].pop();
+            let lastStream = streamGroups[j][streamGroups[j].length - 1];
+            if (lastStream) {
+                lastStream.fade();
+                if (lastStream.alpha <= 0) {
+                    streamGroups[j].pop();
+                } else {
+                    break;
+                }
             } else {
-                break; // Only fade one stream at a time for smoother effect
+                break;
             }
         }
-        
     }
 }
 
