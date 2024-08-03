@@ -35,6 +35,7 @@ const REF_AREA = 1920 * 1080;  // Assuming 1920x1080 as the reference resolution
 const BASE_SPEED = .01;  // the basic speed when there's just one stream
 const LOG_SCALE_FACTOR = .95;  // scaling factor for logarithmic relationship
 let selectedColorSet;
+let MARGIN; // Will be calculated based on window size
 //const SPEED_INCREMENT = 0.01;  // the amount of speed to be added for each additional stream
 
 const colorSets = [
@@ -72,9 +73,13 @@ const colorSets = [
     ]
 ];
 
+function calculateMargin() {
+    MARGIN = Math.min(windowWidth, windowHeight) * 0.075; // 2.5% of the shorter dimension
+}
 
 function preload() {
-    circleDiameter = Math.min(windowWidth, windowHeight);
+    calculateMargin();
+    circleDiameter = Math.min(windowWidth, windowHeight) - 2 * MARGIN;
     let desiredImageHeight = circleDiameter * 1.6;
 
     let imageNames = ["flower.png", "headOutline.png", "headNaked.png", "eyes.png"];
@@ -128,12 +133,11 @@ function setup() {
 }
 
 function windowResized() {
-    // Resize the canvas to the new window width and height
     resizeCanvas(windowWidth, windowHeight);
-    imgCenter.set(width / 2, height / 2);  // Reset the center as the window has been resized
+    imgCenter.set(width / 2, height / 2);
 
-    // Recompute any parameters that depend on the window size
-    circleDiameter = Math.min(windowWidth, windowHeight);
+    calculateMargin(); // Recalculate margin on window resize
+    circleDiameter = Math.min(windowWidth, windowHeight) - 2 * MARGIN; // Adjust for margin
     let desiredImageHeight = circleDiameter * 1.6;
     
     for (let i = 0; i < images.length; i++) {
@@ -144,10 +148,9 @@ function windowResized() {
         }
     }
     
-    // Update center coordinates
     imgCenter.set(width / 2, height / 2);
     
-    generateStreams();  // Regenerate streams based on new window size
+    generateStreams();
 }
 
 function isOverAnyImageCached(point) {
@@ -306,15 +309,16 @@ class Stream {
         return false;
     }
   
-      stayWithinBounds(point) {
-const buffer = 5;  // Small buffer to ensure that the stream doesn't touch the edge
-if (point.x <= buffer || point.x >= width - buffer) {
-this.currentAngle = PI - this.currentAngle;  // Reflect horizontally
-}
-if (point.y <= buffer || point.y >= height - buffer) {
-this.currentAngle = -this.currentAngle;  // Reflect vertically
-}
-}
+    stayWithinBounds(point) {
+        // const buffer = MARGIN + 5;
+        const buffer = 5;  // Small buffer to ensure that the stream doesn't touch the edge
+        if (point.x <= buffer || point.x >= width - buffer) {
+            this.currentAngle = PI - this.currentAngle;  // Reflect horizontally
+        }
+        if (point.y <= buffer || point.y >= height - buffer) {
+            this.currentAngle = -this.currentAngle;  // Reflect vertically
+        }
+    }
 
 get totalStreamsCount() {
     let totalStreams = 0;
