@@ -20,7 +20,6 @@
 
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <!-- If you're not using ES6 modules in your JS, you can remove type="module" -->
     <script>
 let images = [null, null, null, null];
 const transparencyThreshold = 128;
@@ -31,16 +30,14 @@ let circleDiameter;
 let streamGroups = [];
 let desiredStreamCounts = [];
 let totalStreamsToGenerate = 0;
-const REF_AREA = 1920 * 1080;  // Assuming 1920x1080 as the reference resolution where numOfStreams was 900.
-const BASE_SPEED = .01;  // the basic speed when there's just one stream
-const LOG_SCALE_FACTOR = .95;  // scaling factor for logarithmic relationship
+const REF_AREA = 1920 * 1080;
+const BASE_SPEED = .01;
+const LOG_SCALE_FACTOR = .95;
 let selectedColorSet;
-let MARGIN; // Will be calculated based on window size
-//const SPEED_INCREMENT = 0.01;  // the amount of speed to be added for each additional stream
+let MARGIN;
 
 const colorSets = [
     [
-        // [96, 183, 236],
         [238, 96, 85],
         [170, 246, 131],
         [96, 183, 237],
@@ -48,19 +45,13 @@ const colorSets = [
         [255, 217, 125]
     ],
     [
-        // [0, 151, 129],
         [250, 195, 53],
-        // [117, 13, 55],
         [225, 98, 135],
-        // [179, 222, 193],
         [0, 152, 129],
-        // [96, 176, 218],
         [0, 0, 0],
         [158, 239, 27]
-        // [220, 85, 113]
     ],
     [
-        // [255, 0, 83],
         [57, 0, 153],
         [158, 0, 89],
         [255, 0, 84],
@@ -68,7 +59,6 @@ const colorSets = [
         [255, 84, 0]
     ],
     [
-        // [255, 103, 99],
         [163, 123, 217],
         [254, 217, 183],
         [255, 104, 99],
@@ -78,7 +68,7 @@ const colorSets = [
 ];
 
 function calculateMargin() {
-    MARGIN = Math.min(windowWidth, windowHeight) * 0.1; // 2.5% of the shorter dimension
+    MARGIN = Math.min(windowWidth, windowHeight) * 0.1;
 }
 
 function preload() {
@@ -97,7 +87,6 @@ function preload() {
 }
 
 function getCurrentAttractMode() {
-    // If no streams exist, default to true
     if (streamGroups.length === 0 || streamGroups[0].length === 0) {
         return true;
     }
@@ -105,10 +94,7 @@ function getCurrentAttractMode() {
 }
 
 function generateStreams() {
-    // Compute the ratio of the current window area to the reference area
     let areaRatio = (windowWidth * windowHeight) / REF_AREA;
-    
-    // Adjust numOfStreams based on the ratio
     let adjustedNumOfStreams = Math.round(numOfStreams * areaRatio);
 
     const percentages = [.4, .3, .25, .05];
@@ -121,7 +107,6 @@ function generateStreams() {
     
     totalStreamsToGenerate = adjustedNumOfStreams;
 }
-
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -140,8 +125,8 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
     imgCenter.set(width / 2, height / 2);
 
-    calculateMargin(); // Recalculate margin on window resize
-    circleDiameter = Math.min(windowWidth, windowHeight) - 2 * MARGIN; // Adjust for margin
+    calculateMargin();
+    circleDiameter = Math.min(windowWidth, windowHeight) - 2 * MARGIN;
     let desiredImageHeight = circleDiameter * 1.6;
     
     for (let i = 0; i < images.length; i++) {
@@ -158,23 +143,22 @@ function windowResized() {
 }
 
 function isOverAnyImageCached(point) {
-let cacheKey = `${point.x},${point.y}`;
+    let cacheKey = `${point.x},${point.y}`;
 
-// Use the cached result if available
-if (pointImageOverlapCache.hasOwnProperty(cacheKey)) {
-return pointImageOverlapCache[cacheKey];
-}
+    if (pointImageOverlapCache.hasOwnProperty(cacheKey)) {
+        return pointImageOverlapCache[cacheKey];
+    }
 
-let result = isOverAnyImage(point);
-pointImageOverlapCache[cacheKey] = result;  // Cache the result
+    let result = isOverAnyImage(point);
+    pointImageOverlapCache[cacheKey] = result;
 
-return result;
+    return result;
 }
 
 function draw() {
-    if (!selectedColorSet) return;  // Exit if color set is not selected yet
+    if (!selectedColorSet) return;
     
-    background(selectedColorSet[4] || [0, 0, 0]);  // Use black as fallback
+    background(selectedColorSet[4] || [0, 0, 0]);
     pointImageOverlapCache = {};
     drawTransparentCircle();
 
@@ -189,7 +173,7 @@ function draw() {
 }
 
 function adjustStreams() {
-    if (!selectedColorSet) return;  // Exit if color set is not selected yet
+    if (!selectedColorSet) return;
 
     for (let j = 0; j < 4; j++) {
         while (streamGroups[j].length < desiredStreamCounts[j]) {
@@ -214,11 +198,9 @@ function adjustStreams() {
 }
 
 function drawTransparentCircle() {
-    // Transparent circle style
-    fill(255, 255, 255, 30); // White color with 60% transparency
+    fill(255, 255, 255, 30);
     noStroke();
 
-    // Drawing the circle at the center of the canvas
     ellipse(width / 2, height / 2, circleDiameter * 2.1);
     ellipse(width / 2, height / 2, circleDiameter * 1.9);
     ellipse(width / 2, height / 2, circleDiameter * 1.7);
@@ -227,9 +209,6 @@ function drawTransparentCircle() {
     ellipse(width / 2, height / 2, circleDiameter * 1.1);
     ellipse(width / 2, height / 2, circleDiameter * .9);
     ellipse(width / 2, height / 2, circleDiameter * .7);
-    // ellipse(width / 2, height / 2, circleDiameter * 1);
-    // ellipse(width / 2, height / 2, circleDiameter * .9);
-    // ellipse(width / 2, height / 2, circleDiameter * .8);
 }
 
 function isInsideCircle(point) {
@@ -237,14 +216,35 @@ function isInsideCircle(point) {
 }
 
 function mousePressed() {
-for (let streams of streamGroups) {
-for (let s of streams) {
-    s.changeMode();
-}
-}
+    for (let streams of streamGroups) {
+        for (let s of streams) {
+            s.changeMode();
+        }
+    }
 }
 
+function keyPressed() {
+    if (key >= '1' && key <= '4') {
+        let paletteIndex = parseInt(key) - 1;
+        selectedColorSet = colorSets[paletteIndex];
+        updateStreamColors();
+    }
+}
 
+function updateStreamColors() {
+    for (let j = 0; j < 4; j++) {
+        for (let stream of streamGroups[j]) {
+            stream.color = selectedColorSet[j] || [0, 0, 0];
+        }
+    }
+}
+
+// function resetStreams() {
+//     for (let j = 0; j < 4; j++) {
+//         streamGroups[j] = [];
+//     }
+//     generateStreams();
+// }
 
 class Stream {
     constructor(color, assignedImageIdx, startPoint = null) {
@@ -259,34 +259,33 @@ class Stream {
         this.alpha = 255;
     }
     
-
     changeMode() {
         this.attractMode = !this.attractMode;
     }
 
     fade() {
-        this.alpha -= 200;  // Decrement by 5 for a moderate fading speed. Adjust as needed.
+        this.alpha -= 200;
     }
   
-      isOverAnyImage(point) {
-                return isOverAnyImageCached(point);  // Use the cached function instead
-                }
+    isOverAnyImage(point) {
+        return isOverAnyImageCached(point);
+    }
 
-                initStream(startPoint = null) {
-                    if (startPoint) {
-                        this.points.push(startPoint);
-                    } else {
-                        let startX = random(width);
-                        let startY = random(height);
-            
-                        while (this.isOverAnyImage(createVector(startX, startY))) {
-                            startX = random(width);
-                            startY = random(height);
-                        }
-            
-                        this.points.push(createVector(startX, startY));
-                    }
-                }
+    initStream(startPoint = null) {
+        if (startPoint) {
+            this.points.push(startPoint);
+        } else {
+            let startX = random(width);
+            let startY = random(height);
+
+            while (this.isOverAnyImage(createVector(startX, startY))) {
+                startX = random(width);
+                startY = random(height);
+            }
+
+            this.points.push(createVector(startX, startY));
+        }
+    }
 
     isOutsideAllImages(point) {
         return !this.isOverAnyImage(point);
@@ -314,66 +313,60 @@ class Stream {
     }
   
     stayWithinBounds(point) {
-        // const buffer = MARGIN + 5;
-        const buffer = 5;  // Small buffer to ensure that the stream doesn't touch the edge
+        const buffer = 5;
         if (point.x <= buffer || point.x >= width - buffer) {
-            this.currentAngle = PI - this.currentAngle;  // Reflect horizontally
+            this.currentAngle = PI - this.currentAngle;
         }
         if (point.y <= buffer || point.y >= height - buffer) {
-            this.currentAngle = -this.currentAngle;  // Reflect vertically
+            this.currentAngle = -this.currentAngle;
         }
     }
 
-get totalStreamsCount() {
-    let totalStreams = 0;
-    for (let streams of streamGroups) {
-        totalStreams += streams.length;
+    get totalStreamsCount() {
+        let totalStreams = 0;
+        for (let streams of streamGroups) {
+            totalStreams += streams.length;
+        }
+        return totalStreams;
     }
-    return totalStreams;
-}
 
-update() {
-let lastPoint = this.points[this.points.length - 1];
-let newPoint;
+    update() {
+        let lastPoint = this.points[this.points.length - 1];
+        let newPoint;
 
-
-        // Calculate the speed for attractMode based on total streams count using logarithmic relationship
         let speed = this.attractMode ? BASE_SPEED + LOG_SCALE_FACTOR * Math.log(this.totalStreamsCount + 1) : 12;
 
-if (this.attractMode) {
-if (this.isOutsideAllImages(lastPoint) || this.insideImage || this.isOverAssignedImage(lastPoint)) {
-    this.currentAngle = this.calculateAngleTowardsImage(lastPoint, this.assignedImageIdx);
-}
-} else {
-if (this.isOverAnyImage(lastPoint)) {
-    // Repulsion mechanism: If point is inside any image, move away from the image center
-    this.currentAngle = this.calculateAngleAwayFromClosestImageCenter(lastPoint);
-}
-}
+        if (this.attractMode) {
+            if (this.isOutsideAllImages(lastPoint) || this.insideImage || this.isOverAssignedImage(lastPoint)) {
+                this.currentAngle = this.calculateAngleTowardsImage(lastPoint, this.assignedImageIdx);
+            }
+        } else {
+            if (this.isOverAnyImage(lastPoint)) {
+                this.currentAngle = this.calculateAngleAwayFromClosestImageCenter(lastPoint);
+            }
+        }
 
-let angleVariation = map(noise(this.noiseOffset), 0, 1, -PI, PI);
-this.currentAngle += angleVariation;
+        let angleVariation = map(noise(this.noiseOffset), 0, 1, -PI, PI);
+        this.currentAngle += angleVariation;
 
-newPoint = p5.Vector.fromAngle(this.currentAngle).mult(speed).add(lastPoint);  // Using the speed variable here
+        newPoint = p5.Vector.fromAngle(this.currentAngle).mult(speed).add(lastPoint);
 
-// If in attractMode and inside assigned image, check if the new point is outside
-if (this.attractMode && this.insideImage && !this.isOverAssignedImage(newPoint)) {
-this.currentAngle += PI; // Flip direction
-newPoint = p5.Vector.fromAngle(this.currentAngle).mult(speed).add(lastPoint); // Using the speed variable here too
-}
+        if (this.attractMode && this.insideImage && !this.isOverAssignedImage(newPoint)) {
+            this.currentAngle += PI;
+            newPoint = p5.Vector.fromAngle(this.currentAngle).mult(speed).add(lastPoint);
+        }
 
-this.stayWithinBounds(newPoint);  // Check and adjust for bounds
+        this.stayWithinBounds(newPoint);
 
-this.points.push(newPoint);
-this.noiseOffset += 0.005;
+        this.points.push(newPoint);
+        this.noiseOffset += 0.005;
 
-if (this.points.length > 100) {
-this.points.shift();
-}
+        if (this.points.length > 100) {
+            this.points.shift();
+        }
 
-// Update the insideImage flag based on the last point
-this.insideImage = this.isOverAssignedImage(lastPoint);
-}
+        this.insideImage = this.isOverAssignedImage(lastPoint);
+    }
 
     calculateAngleAwayFromClosestImageCenter(point) {
         let closestDistance = Infinity;
