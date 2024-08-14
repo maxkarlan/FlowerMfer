@@ -76,7 +76,10 @@ function preload() {
     circleDiameter = Math.min(windowWidth, windowHeight) - 2 * MARGIN;
     let desiredImageHeight = circleDiameter * 1.65;
 
-    let imageNames = ["flower.png", "headOutline.png", "headNaked.png", "eyes.png"];
+    let imageNames = ["https://2v7rgoixfsav275spwn2sze5rs4aft2mznl2l6b2mqiv4d2w2wia.arweave.net/1X8TORcsgV1_sn2bqWSdjLgCz0zLV6X4OmQRXg9W1ZA",
+                        "https://4gvytcqkxlcjsywjiv3wkqhtbli6agfor5p22kas6hxusq7ykfga.arweave.net/4auJigq6xJliyUV3ZUDzCtHgGK6PX60oEvHvSUP4UUw",
+                        "https://v3cftllqr4zavzr52zt2y5rbqejxv44q6s63y5vsrstztsd5tjla.arweave.net/rsRZrXCPMgrmPdZnrHYhgRN685D0vbx2soynmch9mlY",
+                        "https://qm3mvxdihmplqgvr5rnfajuipi2cpx6st54lmy75bfh6cwqcs7fa.arweave.net/gzbK3Gg7HrgasexaUCaIejQn39KfeLZj_QlP4VoCl8o"];
     for (let i = 0; i < 4; i++) {
         loadImage(imageNames[i], img => {
             let scaleFactor = desiredImageHeight / img.height;
